@@ -47,13 +47,13 @@ struct Pet {
 
 #[derive(Copy, Clone, Debug)]
 enum MenuItem {
-    Home,
+    Board,
 }
 
 impl From<MenuItem> for usize {
     fn from(input: MenuItem) -> usize {
         match input {
-            MenuItem::Home => 0,
+            MenuItem::Board => 0,
         }
     }
 }
@@ -89,8 +89,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
 
-    let menu_titles = vec!["Home", "Quit"];
-    let mut active_menu_item = MenuItem::Home;
+    let menu_titles = vec!["Board", "Quit"];
+    let mut active_menu_item = MenuItem::Board;
     let mut pet_list_state = ListState::default();
     pet_list_state.select(Some(0));
 
@@ -135,7 +135,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             rect.render_widget(tabs, chunks[0]);
             match active_menu_item {
-                MenuItem::Home => rect.render_widget(render_home(), chunks[1]),
+                MenuItem::Board => rect.render_widget(render_home(), chunks[1]),
             }
         })?;
 
@@ -146,7 +146,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     terminal.show_cursor()?;
                     break;
                 }
-                KeyCode::Char('h') => active_menu_item = MenuItem::Home,
+                KeyCode::Char('b') => active_menu_item = MenuItem::Board,
                 KeyCode::Down => {
                     println!("down pressed"); 
                 }
@@ -175,9 +175,9 @@ fn render_home<'a>() -> Paragraph<'a> {
     .alignment(Alignment::Center)
     .block(
         Block::default()
-            .borders(Borders::ALL)
+            .borders(Borders::NONE)
             .style(Style::default().fg(Color::White))
-            .title("Home")
+            .title("Board")
             .border_type(BorderType::Plain),
     );
     home
