@@ -21,6 +21,8 @@ use tui::{
     Terminal,
 };
 
+use tui_chess::types::Piece;
+
 const DB_PATH: &str = "./data/db.json";
 
 #[derive(Error, Debug)]

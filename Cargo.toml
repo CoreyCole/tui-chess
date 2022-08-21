@@ -1,9 +1,13 @@
 [package]
-name = "tui-chess"
+name = "tui_chess"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "tui_chess"
+path = "src/lib.rs"
 
 [dependencies]
 crossterm = { version = "0.19", features = [ "serde" ] }
@@ -12,4 +16,5 @@ serde_json = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
 tui = { version = "0.14", default-features = false, features = ['crossterm', 'serde'] }
 thiserror = "1.0"
+derive = "1.0.0"
 

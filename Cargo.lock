@@ -115,6 +115,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "derive"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "72e3ae26c830a573f2e231fc2475f71fce4705609097cb9523abfc4007caed0b"
+
+[[package]]
 name = "iana-time-zone"
 version = "0.1.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -416,11 +422,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "tui-chess"
+name = "tui_chess"
 version = "0.1.0"
 dependencies = [
  "chrono",
  "crossterm 0.19.0",
+ "derive",
  "serde",
  "serde_json",
  "thiserror",
