@@ -12,11 +12,11 @@ use std::time::{Duration, Instant};
 use thiserror::Error;
 use tui::{
     backend::CrosstermBackend,
-    layout::{Alignment, Constraint, Direction, Layout},
+    layout::{Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
     widgets::{
-        Block, BorderType, Borders, Cell, List, ListItem, ListState, Paragraph, Row, Table, Tabs,
+        Block, Borders, ListState, Table, Tabs,
     },
     Terminal,
 };
@@ -100,7 +100,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     pet_list_state.select(Some(0));
 
     loop {
-        let mut state = GameState::new();
+        let state = GameState::new();
         terminal.draw(|rect| {
             let size = rect.size();
             let chunks = Layout::default()
@@ -169,7 +169,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 fn render_home<'a>(state: &'a GameState) -> Table<'a> {
     let _db = read_db().expect("db exists");
-    let line = "-----------------------------------";
+    // let line = "-----------------------------------";
     /* let home = Paragraph::new(vec![
         Spans::from(vec![Span::raw(line)]),
         Spans::from(vec![Span::raw("Tui")]),
@@ -178,29 +178,7 @@ fn render_home<'a>(state: &'a GameState) -> Table<'a> {
         Spans::from(vec![Span::raw(line)]),
     ]) */
     
-    let table = state.board()
-        .style(Style::default().fg(Color::White))
-        .header(
-            Row::new(vec!["a", "b", "c", "d", "e", "f", "g", "h"])
-            .style(Style::default().fg(Color::Yellow))
-            // If you want some space between the header and the rest of the rows, you can always
-            // specify some margin at the bottom.
-            .bottom_margin(1)
-        )
-        .block(Block::default())
-        .widths(&[
-            Constraint::Length(10),
-            Constraint::Length(10),
-            Constraint::Length(10),
-            Constraint::Length(10),
-            Constraint::Length(10),
-            Constraint::Length(10),
-            Constraint::Length(10),
-            Constraint::Length(10),
-        ])
-        .column_spacing(1);
-
-    table
+    state.board()
 }
 
 fn read_db() -> Result<String, Error> {

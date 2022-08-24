@@ -1,14 +1,10 @@
 use std::cmp::{Eq, PartialEq, Ord, PartialOrd, Ordering};  
 use tui::{
-    style::{Color, Modifier, Style},
-    text::{Span, Spans},
-    layout::{
-        Constraint,
-    },
+    style::{Color, Style},
+    layout::Constraint,
     widgets::{
-        Block, BorderType, Borders, Cell, List, ListItem, ListState, Paragraph, Row, Table, Tabs,
+        Block, Row, Table,
     },
-    Terminal,
 };
 
 pub struct GameState {
@@ -75,10 +71,12 @@ impl GameState {
     }
 
     pub fn piece(x: u8, y: u8) -> Option<Piece> {
+        println!("{}, {}", x, y);
         return None;
     }
 
     pub fn valid_moves(x: u8, y: u8) -> Option<Vec<(u8, u8)>> {
+        println!("{}, {}", x, y);
         return None;
     }
 }
