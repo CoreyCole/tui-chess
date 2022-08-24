@@ -10,6 +10,12 @@ use tui::{
 pub struct GameState {
     board: Vec<Vec<Option<Piece>>>,
 }
+
+impl Default for GameState {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 /*
 pub trait StyledRow<'a> {
     fn apply_style(&'a self) -> Self;
@@ -72,16 +78,16 @@ impl GameState {
 
     pub fn piece(x: u8, y: u8) -> Option<Piece> {
         println!("{}, {}", x, y);
-        return None;
+        None
     }
 
     pub fn valid_moves(x: u8, y: u8) -> Option<Vec<(u8, u8)>> {
         println!("{}, {}", x, y);
-        return None;
+        None
     }
 }
 
-#[derive(Eq, Ord)]
+#[derive(Eq)]
 pub enum Piece {
     King,
     Queen,
