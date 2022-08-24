@@ -21,7 +21,10 @@ use tui::{
     Terminal,
 };
 
-use tui_chess::types::Piece;
+use tui_chess::types::{
+    GameState,
+    Piece,
+};
 
 const DB_PATH: &str = "./data/db.json";
 
@@ -61,7 +64,7 @@ impl From<MenuItem> for usize {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    enable_raw_mode().expect("can run in raw mode");
+    enable_raw_mode().expect("can run in raw mode"); 
 
     let (tx, rx) = mpsc::channel();
     let tick_rate = Duration::from_millis(200);
@@ -97,6 +100,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     pet_list_state.select(Some(0));
 
     loop {
+        let mut state = GameState::new();
         terminal.draw(|rect| {
             let size = rect.size();
             let chunks = Layout::default()
@@ -106,7 +110,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     [
                         Constraint::Length(3),
                         Constraint::Min(2),
-                        Constraint::Length(3),
                     ]
                     .as_ref(),
                 )
@@ -137,7 +140,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             rect.render_widget(tabs, chunks[0]);
             match active_menu_item {
-                MenuItem::Board => rect.render_widget(render_home(), chunks[1]),
+                MenuItem::Board => rect.render_widget(render_home(&state), chunks[1]),
             }
         })?;
 
@@ -164,25 +167,40 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn render_home<'a>() -> Paragraph<'a> {
+fn render_home<'a>(state: &'a GameState) -> Table<'a> {
     let _db = read_db().expect("db exists");
     let line = "-----------------------------------";
-    let home = Paragraph::new(vec![
+    /* let home = Paragraph::new(vec![
         Spans::from(vec![Span::raw(line)]),
         Spans::from(vec![Span::raw("Tui")]),
         Spans::from(vec![Span::raw("")]),
         Spans::from(vec![Span::raw("Chess")]),
         Spans::from(vec![Span::raw(line)]),
-    ])
-    .alignment(Alignment::Center)
-    .block(
-        Block::default()
-            .borders(Borders::NONE)
-            .style(Style::default().fg(Color::White))
-            .title("Board")
-            .border_type(BorderType::Plain),
-    );
-    home
+    ]) */
+    
+    let table = state.board()
+        .style(Style::default().fg(Color::White))
+        .header(
+            Row::new(vec!["a", "b", "c", "d", "e", "f", "g", "h"])
+            .style(Style::default().fg(Color::Yellow))
+            // If you want some space between the header and the rest of the rows, you can always
+            // specify some margin at the bottom.
+            .bottom_margin(1)
+        )
+        .block(Block::default())
+        .widths(&[
+            Constraint::Length(10),
+            Constraint::Length(10),
+            Constraint::Length(10),
+            Constraint::Length(10),
+            Constraint::Length(10),
+            Constraint::Length(10),
+            Constraint::Length(10),
+            Constraint::Length(10),
+        ])
+        .column_spacing(1);
+
+    table
 }
 
 fn read_db() -> Result<String, Error> {
