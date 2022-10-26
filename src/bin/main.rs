@@ -21,7 +21,10 @@ async fn run_app<B: Backend>(terminal: &mut Terminal<B>, log_file: File) -> anyh
         terminal.draw(|f| ui(f, &state))?;
         match controls(&mut state)? {
             // write to log file and exit
-            Controls::Quit => return Ok(()),
+            Controls::Quit => {
+                state.stop();
+                return Ok(());
+            }
             Controls::Continue => {}
         }
 
@@ -61,7 +64,7 @@ async fn main() -> anyhow::Result<()> {
         return Ok(());
     }
     f_clone.flush()?;
-    println!("Thank you for using tui_chess <3\n\nPress any key to exit...");
+    println!("Thank you for playing Tui Chess <3\n\nPress any key to exit...");
 
     Ok(())
 }
