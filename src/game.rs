@@ -24,7 +24,7 @@ pub struct GameState {
     pub logs_tx: Sender<String>,
     pub logs_rx: Receiver<String>,
     pub keys_rx: Receiver<KeyCode>,
-    pub keys_thread: JoinHandle<()>,
+    keys_thread: JoinHandle<()>,
 }
 
 impl GameState {
@@ -66,6 +66,7 @@ impl GameState {
     }
 
     pub fn stop(&self) {
+        // TODO: exit automatically without key press needed
         self.keys_thread.abort();
     }
 
@@ -145,6 +146,7 @@ impl GameState {
         for m in moves {
             match m {
                 Move::Lateral(n) => {
+                    // TODO: go from piece out until intersecting another piece
                     // left to right
                     let left = if n > x { 0 } else { x - n };
                     let right = if n + x > 7 { 8 } else { n + x };
