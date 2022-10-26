@@ -10,6 +10,11 @@ use tui::{
 };
 use unicode_width::UnicodeWidthStr;
 
+pub enum Screen {
+    Board,
+    Logs,
+}
+
 pub fn ui<B: Backend>(f: &mut Frame<B>, state: &GameState) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
@@ -26,7 +31,7 @@ pub fn ui<B: Backend>(f: &mut Frame<B>, state: &GameState) {
     let (msg, style) = match state.input_mode {
         InputMode::Normal => (
             vec![Span::styled(
-                "QUIT: q CMD: i",
+                "QUIT: q CMD: i Board: 1 Logs: 2",
                 Style::default().add_modifier(Modifier::BOLD),
             )],
             Style::default().add_modifier(Modifier::RAPID_BLINK),
@@ -71,5 +76,8 @@ pub fn ui<B: Backend>(f: &mut Frame<B>, state: &GameState) {
         }
     }
 
-    f.render_widget(state.board(), chunks[2]);
+    match state.screen {
+        Screen::Board => f.render_widget(state.board(), chunks[2]),
+        Screen::Logs => f.render_widget(state.logs(), chunks[2]),
+    }
 }

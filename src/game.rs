@@ -1,5 +1,6 @@
 use crate::board::STARTER_BOARD;
 use crate::controls::InputMode;
+use crate::ui::Screen;
 use crossterm::event::{self, Event, KeyCode};
 use std::cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd};
 use std::fs::File;
@@ -9,10 +10,12 @@ use tokio::task::JoinHandle;
 use tui::{
     layout::Constraint,
     style::{Color, Style},
-    widgets::{Block, Row, Table},
+    text::Span,
+    widgets::{Block, Borders, List, ListItem, Row, Table},
 };
 
 pub struct GameState {
+    pub screen: Screen,
     pub log_file: File,
     pub input_mode: InputMode,
     pub input: String,
@@ -49,6 +52,7 @@ impl GameState {
         let (keys_tx, _rx) = broadcast::channel(10);
         let keys_thread = Self::send_keys(keys_tx.clone());
         Self {
+            screen: Screen::Board,
             log_file,
             input_mode: InputMode::Normal,
             input: "".into(),
@@ -101,18 +105,74 @@ impl GameState {
             .column_spacing(1)
     }
 
-    pub fn piece(x: u8, y: u8) -> Option<Piece> {
-        println!("{}, {}", x, y);
-        None
+    pub fn logs(&self) -> List {
+        let list_items: Vec<ListItem> = self
+            .messages
+            .iter()
+            .map(|m| ListItem::new(Span::raw(m.to_string())))
+            .rev()
+            .collect();
+        List::new(list_items).block(Block::default().borders(Borders::ALL).title("Logs"))
     }
 
-    pub fn valid_moves(x: u8, y: u8) -> Option<Vec<(u8, u8)>> {
-        println!("{}, {}", x, y);
-        None
+    pub fn piece(&self, x: usize, y: usize) -> Option<Piece> {
+        match &self.board[x][y] {
+            Piece::Empty => None,
+            p => Some(*p),
+        }
+    }
+
+    pub fn moves(&self, x: usize, y: usize) -> Vec<(usize, usize)> {
+        let piece = &self.board[x][y];
+        let mut moves = Vec::new();
+        let mut valid_moves = Vec::new();
+        match piece {
+            Piece::WhiteQueen | Piece::BlackQueen => {
+                moves.push(Move::Lateral(7));
+                moves.push(Move::Diagonal(7));
+            }
+            Piece::WhiteKing | Piece::BlackKing => {
+                moves.push(Move::Lateral(1));
+                moves.push(Move::Diagonal(1));
+            }
+            Piece::WhiteRook | Piece::BlackRook => moves.push(Move::Lateral(7)),
+            Piece::WhiteBishop | Piece::BlackBishop => moves.push(Move::Diagonal(7)),
+            Piece::WhiteKnight | Piece::BlackKnight => moves.push(Move::Knight),
+            Piece::WhitePawn => moves.push(Move::WhitePawn),
+            Piece::BlackPawn => moves.push(Move::BlackPawn),
+            Piece::Empty => {}
+        }
+        for m in moves {
+            match m {
+                Move::Lateral(n) => {
+                    // left to right
+                    let left = if n > x { 0 } else { x - n };
+                    let right = if n + x > 7 { 8 } else { n + x };
+                    for i in left..right {
+                        if !self.board[i][y].matches_color(piece) {
+                            valid_moves.push((i, y));
+                        }
+                    }
+                    // top to bottom
+                    let top = if n > y { 0 } else { y - n };
+                    let bottom = if n + y > 7 { 8 } else { n + y };
+                    for i in top..bottom {
+                        if !self.board[x][i].matches_color(piece) {
+                            valid_moves.push((x, i));
+                        }
+                    }
+                }
+                Move::Diagonal(_n) => {}
+                Move::Knight => {}
+                Move::WhitePawn => {}
+                Move::BlackPawn => {}
+            }
+        }
+        valid_moves
     }
 }
 
-#[derive(Eq)]
+#[derive(Copy, Clone, Eq)]
 pub enum Piece {
     Empty,
     WhiteKing,
@@ -129,7 +189,43 @@ pub enum Piece {
     BlackPawn,
 }
 
+#[derive(Eq, PartialEq)]
+pub enum ChessColor {
+    White,
+    Black,
+}
+
+enum Move {
+    Lateral(usize),
+    Diagonal(usize),
+    Knight,
+    WhitePawn,
+    BlackPawn,
+}
+
 impl Piece {
+    pub fn matches_color(&self, other: &Self) -> bool {
+        self.color() == other.color()
+    }
+
+    pub fn color(&self) -> Option<ChessColor> {
+        match *self {
+            Piece::Empty => None,
+            Piece::WhiteKing
+            | Piece::WhiteQueen
+            | Piece::WhiteRook
+            | Piece::WhiteBishop
+            | Piece::WhiteKnight
+            | Piece::WhitePawn => Some(ChessColor::White),
+            Piece::BlackKing
+            | Piece::BlackQueen
+            | Piece::BlackRook
+            | Piece::BlackBishop
+            | Piece::BlackKnight
+            | Piece::BlackPawn => Some(ChessColor::Black),
+        }
+    }
+
     pub fn display_string(&self) -> String {
         String::from(self.display())
     }
