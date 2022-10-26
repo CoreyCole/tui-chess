@@ -17,4 +17,8 @@ chrono = { version = "0.4", features = ["serde"] }
 tui = { version = "0.14", default-features = false, features = ['crossterm', 'serde'] }
 thiserror = "1.0"
 derive = "1.0.0"
+anyhow = "1.0.66"
+derive_more = "0.99.17"
+tokio = { version = "1.21.2", features = ["full", "time"] }
+unicode-width = "0.1.10"
 
